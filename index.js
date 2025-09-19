@@ -1,43 +1,33 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const path = require('path');
 
-const port = '8080';
+const app = express();
+const port = '3000';
 
-const server = http.createServer((req, res) => {
-  let page;
-  switch (req.url) {
-    case '/':
-      page = 'index';
-      break;
-
-    case '/about':
-      page = 'about';
-      break;
-
-    case '/contact-me':
-      page = 'contact-me';
-      break;
-
-    default:
-      page = '404';
-  }
-
-  if (page === '404') {
-    res.writeHead(404, { 'Content-Type': 'text/html' });
-  } else {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-  }
-
-  fs.readFile(`./html/${page}.html`, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading the HTML file:', err);
-      return;
-    }
-
-    res.end(data);
-  });
+app.get('/', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.status(200).sendFile(path.join(__dirname, '/html/index.html'));
 });
 
-server.listen(port, () => {
+app.get('/about', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.status(200).sendFile(path.join(__dirname, '/html/about.html'));
+});
+
+app.get('/contact-me', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.status(200).sendFile(path.join(__dirname, '/html/contact-me.html'));
+});
+
+app.use((req, res, next) => {
+  res.set('Content-Type', 'text/html');
+  res.status(404).sendFile(path.join(__dirname, '/html/404.html'));
+});
+
+app.listen(port, (err) => {
+  if (err) {
+    console.error(err);
+  }
+
   console.log(`Server running at http://localhost:${port}/`);
 });
